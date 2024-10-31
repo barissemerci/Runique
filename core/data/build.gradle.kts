@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.barissemerci.core.database"
+    namespace = "com.barissemerci.core.data"
 
 
 }
