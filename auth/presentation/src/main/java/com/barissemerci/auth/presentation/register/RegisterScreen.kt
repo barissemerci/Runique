@@ -46,29 +46,22 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 
 fun RegisterScreenRoot(
-
+    onSignInClick: () -> Unit,
+    onSuccessfulRegistration: () -> Unit,
     viewModel: RegisterViewModel = koinViewModel()
 
 ) {
-
     RegisterScreen(
-
         state = viewModel.state,
-
         onAction = viewModel::onAction
-
     )
-
 }
 
 @Composable
 
 private fun RegisterScreen(
-
     state: RegisterState,
-
     onAction: (RegisterAction) -> Unit
-
 ) {
     GradientBackground {
         Column(
