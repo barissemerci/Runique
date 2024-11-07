@@ -37,7 +37,6 @@ import com.barissemerci.core.presentation.designsystem.CrossIcon
 import com.barissemerci.core.presentation.designsystem.EmailIcon
 import com.barissemerci.core.presentation.designsystem.Poppins
 import com.barissemerci.core.presentation.designsystem.RuniqueDarkRed
-import com.barissemerci.core.presentation.designsystem.RuniqueGray
 import com.barissemerci.core.presentation.designsystem.RuniqueGreen
 import com.barissemerci.core.presentation.designsystem.RuniqueTheme
 import com.barissemerci.core.presentation.designsystem.components.GradientBackground
@@ -100,7 +99,10 @@ private fun RegisterScreen(
 
             val annotatedString = buildAnnotatedString {
                 withStyle(
-                    style = SpanStyle(fontFamily = Poppins, color = RuniqueGray)
+                    style = SpanStyle(
+                        fontFamily = Poppins,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 ) {
                     append(stringResource(id = R.string.already_have_an_account) + " ")
                     pushStringAnnotation(

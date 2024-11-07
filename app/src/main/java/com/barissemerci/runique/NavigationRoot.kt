@@ -1,6 +1,5 @@
 package com.barissemerci.runique
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -8,6 +7,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.barissemerci.auth.presentation.intro.IntroScreenRoot
+import com.barissemerci.auth.presentation.login.LoginScreenRoot
 import com.barissemerci.auth.presentation.register.RegisterScreenRoot
 
 @Composable
@@ -25,8 +25,8 @@ fun NavigationRoot(
 
 private fun NavGraphBuilder.authGraph(navController: NavHostController) {
     navigation(
-        route = "intro",
-        startDestination = "auth"
+        route = "auth",
+        startDestination = "intro"
     ) {
         composable(
             route = "intro"
@@ -61,7 +61,25 @@ private fun NavGraphBuilder.authGraph(navController: NavHostController) {
         composable(
             route = "login"
         ) {
-            Text(text = "login")
+            LoginScreenRoot(
+                onLoginSuccess = {
+                    navController.navigate("run") {
+                        popUpTo("auth") {
+                            inclusive = true
+                        }
+                    }
+                },
+                onSignupClick = {
+                    navController.navigate("register") {
+                        popUpTo("login") {
+                            inclusive = true
+                            saveState = true
+                        }
+                        restoreState = true
+                    }
+                }
+
+            )
         }
 
     }
