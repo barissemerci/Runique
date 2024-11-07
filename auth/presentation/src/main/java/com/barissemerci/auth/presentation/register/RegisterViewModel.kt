@@ -52,15 +52,16 @@ class RegisterViewModel(
     }
 
     fun onAction(action: RegisterAction) {
-            when(action){
-                RegisterAction.OnRegisterClick -> register()
-                RegisterAction.OnTogglePasswordVisibilityClick -> {
-                    state = state.copy(
-                        isPasswordVisible = !state.isPasswordVisible
-                    )
-                }
-                else -> Unit
+        when (action) {
+            RegisterAction.OnRegisterClick -> register()
+            RegisterAction.OnTogglePasswordVisibilityClick -> {
+                state = state.copy(
+                    isPasswordVisible = !state.isPasswordVisible
+                )
             }
+
+            else -> Unit
+        }
     }
 
     private fun register() {
@@ -79,8 +80,7 @@ class RegisterViewModel(
                 is Result.Error -> {
                     if (result.error == DataError.Network.CONFLICT) {
                         eventChannel.send(RegisterEvent.Error(UiText.StringResource(R.string.error_email_exists)))
-                    }
-                    else{
+                    } else {
                         eventChannel.send(RegisterEvent.Error(result.error.asUiText()))
                     }
 
