@@ -1,6 +1,5 @@
 package com.barissemerci.runique
 
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
@@ -10,6 +9,7 @@ import androidx.navigation.navigation
 import com.barissemerci.auth.presentation.intro.IntroScreenRoot
 import com.barissemerci.auth.presentation.login.LoginScreenRoot
 import com.barissemerci.auth.presentation.register.RegisterScreenRoot
+import com.barissemerci.run.presentation.run_overview.RunOverviewScreenRoot
 
 @Composable
 fun NavigationRoot(
@@ -94,7 +94,9 @@ private fun NavGraphBuilder.runGraph(navController: NavHostController) {
         route = "run"
     ) {
         composable(route = "run_overview") {
-            Text(text = "Run Overview")
+            RunOverviewScreenRoot(
+
+            )
         }
     }
 }
