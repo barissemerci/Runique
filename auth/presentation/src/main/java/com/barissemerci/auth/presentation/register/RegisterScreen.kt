@@ -195,7 +195,7 @@ private fun RegisterScreen(
             RuniqueActionButton(
                 text = stringResource(id = R.string.register),
                 isLoading = state.isRegistering,
-                enabled = state.canRegister,
+                enabled = state.canRegister && !state.isRegistering,
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
                     onAction(RegisterAction.OnRegisterClick)
