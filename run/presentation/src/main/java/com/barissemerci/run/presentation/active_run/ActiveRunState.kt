@@ -11,6 +11,8 @@ data class ActiveRunState(
     val hasStatedRunning : Boolean = false,
     val location : Location? = null,
     val isRunFinished : Boolean = false,
-    val isRunSavingRun : Boolean = false
+    val isRunSavingRun : Boolean = false,
+    val showLocationRationale : Boolean = false,
+    val showNotificationRationale : Boolean = false,
 
 )
