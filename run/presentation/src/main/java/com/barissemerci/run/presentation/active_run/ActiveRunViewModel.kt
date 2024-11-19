@@ -4,11 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.barissemerci.run.domain.RunningTracker
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 
-class ActiveRunViewModel : ViewModel() {
+class ActiveRunViewModel(
+    private val runningTracker: RunningTracker
+) : ViewModel() {
     var state by mutableStateOf(
         ActiveRunState()
     )
@@ -20,37 +26,48 @@ class ActiveRunViewModel : ViewModel() {
     private val _hasLocationPermission =
         MutableStateFlow(false) //only used in viewmodel to start tracking, observe changing
 
-    fun onAction(action: ActiveRunAction) {
-        when (action) {
-
-            ActiveRunAction.OnFinishRunClick -> {
+    init {
+        _hasLocationPermission.onEach { hasPermission ->
+            if (hasPermission) {
+                runningTracker.startObservingLocation()
+            } else {
+                runningTracker.stopObservingLocation()
             }
+        }.launchIn(
+            viewModelScope
+        )
+    }
+        fun onAction(action: ActiveRunAction) {
+            when (action) {
 
-            ActiveRunAction.OnResumeRunClick -> {
+                ActiveRunAction.OnFinishRunClick -> {
+                }
+
+                ActiveRunAction.OnResumeRunClick -> {
+                }
+
+                ActiveRunAction.OnToggleRunClick -> {}
+                is ActiveRunAction.SubmitLocationPermissionInfo -> {
+                    _hasLocationPermission.value = action.acceptedLocationPermission
+                    state = state.copy(
+                        showLocationRationale = action.showLocationRationale
+                    )
+                }
+
+                is ActiveRunAction.SubmitNotificationPermissionInfo -> {
+                    state = state.copy(
+                        showNotificationRationale = action.showNotificationRationale
+                    )
+                }
+
+                is ActiveRunAction.DismissRationaleDialog -> {
+                    state = state.copy(
+                        showLocationRationale = false,
+                        showNotificationRationale = false
+                    )
+                }
+
+                else -> Unit
             }
-
-            ActiveRunAction.OnToggleRunClick -> {}
-            is ActiveRunAction.SubmitLocationPermissionInfo -> {
-                _hasLocationPermission.value = action.acceptedLocationPermission
-                state = state.copy(
-                    showLocationRationale = action.showLocationRationale
-                )
-            }
-
-            is ActiveRunAction.SubmitNotificationPermissionInfo -> {
-                state = state.copy(
-                    showNotificationRationale = action.showNotificationRationale
-                )
-            }
-
-            is ActiveRunAction.DismissRationaleDialog ->{
-                state = state.copy(
-                    showLocationRationale = false,
-                    showNotificationRationale = false
-                )
-            }
-
-            else -> Unit
         }
     }
-}
