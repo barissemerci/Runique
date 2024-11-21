@@ -32,6 +32,7 @@ import com.barissemerci.core.presentation.designsystem.components.RuniqueOutline
 import com.barissemerci.core.presentation.designsystem.components.RuniqueScaffold
 import com.barissemerci.core.presentation.designsystem.components.RuniqueToolBar
 import com.barissemerci.run.presentation.R
+import com.barissemerci.run.presentation.active_run.maps.TrackerMap
 import com.barissemerci.run.presentation.components.RunDataCard
 import com.barissemerci.run.presentation.util.hasLocationPermission
 import com.barissemerci.run.presentation.util.hasNotificationPermission
@@ -111,7 +112,7 @@ private fun ActiveRunScreen(
             )
         )
 
-        if(!showLocationRationale && !showNotificationRationale){
+        if (!showLocationRationale && !showNotificationRationale) {
             permissionLauncher.requestRuniquePermissions(context)
         }
     }
@@ -142,6 +143,14 @@ private fun ActiveRunScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.surface)
         ) {
+            TrackerMap(
+                isRunFinished = state.isRunFinished,
+                currentLocation = state.currentLocation,
+                locations = state.runData.locations,
+                onSnapshot = {},
+                modifier = Modifier.fillMaxSize()
+
+            )
             RunDataCard(
                 elapsedTime = state.elapsedTime,
                 runData = state.runData,
