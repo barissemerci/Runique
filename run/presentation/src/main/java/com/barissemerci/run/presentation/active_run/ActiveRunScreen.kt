@@ -34,6 +34,7 @@ import com.barissemerci.core.presentation.designsystem.components.RuniqueScaffol
 import com.barissemerci.core.presentation.designsystem.components.RuniqueToolBar
 import com.barissemerci.run.presentation.R
 import com.barissemerci.run.presentation.active_run.maps.TrackerMap
+import com.barissemerci.run.presentation.active_run.service.ActiveRunService
 import com.barissemerci.run.presentation.components.RunDataCard
 import com.barissemerci.run.presentation.util.hasLocationPermission
 import com.barissemerci.run.presentation.util.hasNotificationPermission
@@ -44,6 +45,7 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 
 fun ActiveRunScreenRoot(
+    onServiceToggle : (isServiceRunning : Boolean) -> Unit,
 
     viewModel: ActiveRunViewModel = koinViewModel()
 
@@ -51,14 +53,15 @@ fun ActiveRunScreenRoot(
 
     ActiveRunScreen(
         state = viewModel.state,
-        onAction = viewModel::onAction
+        onAction = viewModel::onAction,
+        onServiceToggle = onServiceToggle
     )
 }
 
 @Composable
-
 private fun ActiveRunScreen(
     state: ActiveRunState,
+    onServiceToggle : (isServiceRunning : Boolean) -> Unit,
     onAction: (ActiveRunAction) -> Unit
 ) {
     val context = LocalContext.current
@@ -117,6 +120,20 @@ private fun ActiveRunScreen(
             permissionLauncher.requestRuniquePermissions(context)
         }
     }
+
+    LaunchedEffect(state.isRunFinished) {
+
+        if(state.isRunFinished){
+            onServiceToggle(false)
+        }
+    }
+
+    LaunchedEffect(state.shouldTrack) {
+        if (context.hasLocationPermission() && state.shouldTrack && !ActiveRunService.isServiceActive) {
+            onServiceToggle(true)
+        }
+    }
+
     RuniqueScaffold(
         withGradient = false,
         topAppBar = {
@@ -259,7 +276,8 @@ private fun ActiveRunScreenPreview() {
     RuniqueTheme {
         ActiveRunScreen(
             state = ActiveRunState(),
-            onAction = {}
+            onAction = {},
+            onServiceToggle = {}
         )
     }
 }
