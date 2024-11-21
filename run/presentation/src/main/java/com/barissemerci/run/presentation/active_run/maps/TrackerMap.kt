@@ -88,6 +88,7 @@ fun TrackerMap(
             zoomControlsEnabled = false,
         )
     ) {
+        RuniquePolylines(locations)
         if (!isRunFinished && currentLocation != null) {
             MarkerComposable(
                 currentLocation,
@@ -97,7 +98,7 @@ fun TrackerMap(
                     modifier = Modifier
                         .size(35.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.background),
+                        .background(MaterialTheme.colorScheme.primary),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
