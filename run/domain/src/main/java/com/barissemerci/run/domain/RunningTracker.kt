@@ -34,7 +34,7 @@ class RunningTracker(
         MutableStateFlow(false) //activly tracking, run active, duration active,
 
     private val _elapsedTime = MutableStateFlow(Duration.ZERO)
-    private val elapsedTime = _elapsedTime.asStateFlow()
+     val elapsedTime = _elapsedTime.asStateFlow()
 
 
     private val isObservingLocation = MutableStateFlow(false)
