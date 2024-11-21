@@ -94,7 +94,7 @@ class ActiveRunViewModel(
 
             ActiveRunAction.OnToggleRunClick -> {
                 state = state.copy(
-                    hasStatedRunning = true,
+                    hasStartedRunning = true,
                     shouldTrack = !state.shouldTrack
                 )
             }
