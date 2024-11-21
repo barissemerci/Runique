@@ -34,7 +34,7 @@ class RunningTracker(
         MutableStateFlow(false) //activly tracking, run active, duration active,
 
     private val _elapsedTime = MutableStateFlow(Duration.ZERO)
-     val elapsedTime = _elapsedTime.asStateFlow()
+    val elapsedTime = _elapsedTime.asStateFlow()
 
 
     private val isObservingLocation = MutableStateFlow(false)
@@ -52,6 +52,19 @@ class RunningTracker(
 
     init {
         isTracking
+            .onEach { isTracking ->
+                if (!isTracking) {
+                    val newList = buildList {
+                        addAll(runData.value.locations)
+                        add(emptyList<LocationTimestamp>())
+                    }.toList()
+                    _runData.update {
+                        it.copy(
+                            locations = newList
+                        )
+                    }
+                }
+            }
             .flatMapLatest { isTracking ->
                 if (isTracking) {
                     Timer.timeAndEmit()
