@@ -4,6 +4,7 @@ package com.barissemerci.run.presentation.active_run
 
 import android.Manifest
 import android.content.Context
+import android.graphics.Bitmap
 import android.os.Build
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -41,11 +42,12 @@ import com.barissemerci.run.presentation.util.hasNotificationPermission
 import com.barissemerci.run.presentation.util.shouldShowLocationPermissionRationale
 import com.barissemerci.run.presentation.util.shouldShowNotificationPermissionRationale
 import org.koin.androidx.compose.koinViewModel
+import java.io.ByteArrayOutputStream
 
 @Composable
 
 fun ActiveRunScreenRoot(
-    onServiceToggle : (isServiceRunning : Boolean) -> Unit,
+    onServiceToggle: (isServiceRunning: Boolean) -> Unit,
 
     viewModel: ActiveRunViewModel = koinViewModel()
 
@@ -61,7 +63,7 @@ fun ActiveRunScreenRoot(
 @Composable
 private fun ActiveRunScreen(
     state: ActiveRunState,
-    onServiceToggle : (isServiceRunning : Boolean) -> Unit,
+    onServiceToggle: (isServiceRunning: Boolean) -> Unit,
     onAction: (ActiveRunAction) -> Unit
 ) {
     val context = LocalContext.current
@@ -123,7 +125,7 @@ private fun ActiveRunScreen(
 
     LaunchedEffect(state.isRunFinished) {
 
-        if(state.isRunFinished){
+        if (state.isRunFinished) {
             onServiceToggle(false)
         }
     }
@@ -165,7 +167,13 @@ private fun ActiveRunScreen(
                 isRunFinished = state.isRunFinished,
                 currentLocation = state.currentLocation,
                 locations = state.runData.locations,
-                onSnapshot = {},
+                onSnapshot = { bmp ->
+                    val stream = ByteArrayOutputStream()
+                    stream.use {
+                        bmp.compress(Bitmap.CompressFormat.JPEG, 80, it)
+                    }
+                    onAction(ActiveRunAction.OnRunProcessed(stream.toByteArray()))
+                },
                 modifier = Modifier.fillMaxSize()
 
             )
