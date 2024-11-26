@@ -1,6 +1,7 @@
 package com.barissemerci.core.presentation.ui
 
 import kotlin.math.pow
+import kotlin.math.round
 import kotlin.math.roundToInt
 import kotlin.time.Duration
 
@@ -37,5 +38,5 @@ fun Duration.toFormattedPace(distanceKm: Double): String {
 
 private fun Double.roundToDecimals(decimalCount: Int): Double {
     val factor = 10f.pow(decimalCount)
-    return (this * factor) / factor
+    return round(this * factor) / factor
 }
