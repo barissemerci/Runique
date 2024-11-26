@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.Build
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.ActivityResultLauncher
@@ -33,6 +34,7 @@ import com.barissemerci.core.presentation.designsystem.components.RuniqueFloatin
 import com.barissemerci.core.presentation.designsystem.components.RuniqueOutlinedActionButton
 import com.barissemerci.core.presentation.designsystem.components.RuniqueScaffold
 import com.barissemerci.core.presentation.designsystem.components.RuniqueToolBar
+import com.barissemerci.core.presentation.ui.ObserveAsEvents
 import com.barissemerci.run.presentation.R
 import com.barissemerci.run.presentation.active_run.maps.TrackerMap
 import com.barissemerci.run.presentation.active_run.service.ActiveRunService
@@ -47,19 +49,41 @@ import java.io.ByteArrayOutputStream
 @Composable
 
 fun ActiveRunScreenRoot(
+    onFinish: () -> Unit,
+    onBack: () -> Unit,
     onServiceToggle: (isServiceRunning: Boolean) -> Unit,
-
     viewModel: ActiveRunViewModel = koinViewModel()
 
 ) {
-
+    val context = LocalContext.current
+    ObserveAsEvents(flow =viewModel.events) {
+        event->
+        when(event){
+            is ActiveRunEvent.Error -> {
+                Toast.makeText(context, event.error.asString(context), Toast.LENGTH_SHORT).show()
+            }
+            ActiveRunEvent.RunSaved -> onFinish()
+        }
+    }
     ActiveRunScreen(
         state = viewModel.state,
-        onAction = viewModel::onAction,
+        onAction = { action ->
+            when(action){
+                ActiveRunAction.DismissRationaleDialog -> {}
+                ActiveRunAction.OnBackClick -> {
+                    if(!viewModel.state.hasStartedRunning){
+                        onBack()
+                    }
+                }
+               else -> Unit
+            }
+            viewModel.onAction(action)
+        },
         onServiceToggle = onServiceToggle
     )
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ActiveRunScreen(
     state: ActiveRunState,
