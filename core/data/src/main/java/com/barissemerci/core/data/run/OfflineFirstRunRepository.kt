@@ -58,6 +58,7 @@ class OfflineFirstRunRepository(
         val remoteResult = remoteRunDataSource.postRun(runWithId, mapPicture)
         return when (remoteResult) {
             is Result.Error -> {
+
                 Result.Success(Unit)
             }
 
