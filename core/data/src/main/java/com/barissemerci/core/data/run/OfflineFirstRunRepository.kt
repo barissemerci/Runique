@@ -1,5 +1,6 @@
 package com.barissemerci.core.data.run
 
+import com.barissemerci.core.data.networking.get
 import com.barissemerci.core.database.dao.RunPendingSyncDao
 import com.barissemerci.core.database.mapper.toRun
 import com.barissemerci.core.domain.SessionStorage
@@ -13,6 +14,10 @@ import com.barissemerci.core.domain.util.DataError
 import com.barissemerci.core.domain.util.EmptyDataResult
 import com.barissemerci.core.domain.util.Result
 import com.barissemerci.core.domain.util.asEmptyDataResult
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.auth.Auth
+import io.ktor.client.plugins.auth.providers.BearerAuthProvider
+import io.ktor.client.plugins.plugin
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -26,7 +31,8 @@ class OfflineFirstRunRepository(
     private val applicationScope: CoroutineScope,
     private val runPendingSyncDao: RunPendingSyncDao,
     private val sessionStorage: SessionStorage,
-    private val syncRunScheduler: SyncRunScheduler
+    private val syncRunScheduler: SyncRunScheduler,
+    private val client: HttpClient
 
 ) : RunRepository {
     override fun getRuns(): Flow<List<Run>> {
@@ -99,7 +105,7 @@ class OfflineFirstRunRepository(
             }.await()
 
         if (remoteResult is Result.Error) {
-            applicationScope.launch{
+            applicationScope.launch {
                 syncRunScheduler.scheduleSync(
                     type = SyncRunScheduler.SyncType.DeleteRun(
                         runId = id
@@ -154,5 +160,21 @@ class OfflineFirstRunRepository(
             createJobs.forEach { it.join() }
             deleteJobs.forEach { it.join() }
         }
+    }
+
+    override suspend fun logout(): EmptyDataResult<DataError.Network> {
+
+        val result = client.get<Unit>(
+            route = "logout"
+        ).asEmptyDataResult()
+
+        client.plugin(Auth).providers.filterIsInstance<BearerAuthProvider>().firstOrNull()
+            ?.clearToken()
+
+        return result
+    }
+
+    override suspend fun deleteAllRuns() {
+        localRunDataSource.deleteAllRuns()
     }
 }
