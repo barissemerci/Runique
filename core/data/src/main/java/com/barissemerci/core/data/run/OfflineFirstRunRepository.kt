@@ -8,6 +8,7 @@ import com.barissemerci.core.domain.run.RemoteRunDataSource
 import com.barissemerci.core.domain.run.Run
 import com.barissemerci.core.domain.run.RunId
 import com.barissemerci.core.domain.run.RunRepository
+import com.barissemerci.core.domain.run.SyncRunScheduler
 import com.barissemerci.core.domain.util.DataError
 import com.barissemerci.core.domain.util.EmptyDataResult
 import com.barissemerci.core.domain.util.Result
@@ -24,7 +25,9 @@ class OfflineFirstRunRepository(
     private val remoteRunDataSource: RemoteRunDataSource,
     private val applicationScope: CoroutineScope,
     private val runPendingSyncDao: RunPendingSyncDao,
-    private val sessionStorage: SessionStorage
+    private val sessionStorage: SessionStorage,
+    private val syncRunScheduler: SyncRunScheduler
+
 ) : RunRepository {
     override fun getRuns(): Flow<List<Run>> {
         return localRunDataSource.getRuns()
@@ -59,6 +62,15 @@ class OfflineFirstRunRepository(
         return when (remoteResult) {
             is Result.Error -> {
 
+                applicationScope.launch {
+                    syncRunScheduler.scheduleSync(
+                        type = SyncRunScheduler.SyncType.CreateRun(
+                            run = runWithId,
+                            mapPictureBytes = mapPicture
+                        )
+                    )
+                }.join()
+
                 Result.Success(Unit)
             }
 
@@ -77,7 +89,7 @@ class OfflineFirstRunRepository(
         //but deleted in off-line mode as well. In that case we don't need to sync anythi
 
         val isPendingSync = runPendingSyncDao.getRunPendingSyncEntity(id) != null
-        if(isPendingSync){
+        if (isPendingSync) {
             runPendingSyncDao.deleteRunPendingSyncEntity(id)
             return
         }
@@ -85,6 +97,17 @@ class OfflineFirstRunRepository(
             applicationScope.async {
                 remoteRunDataSource.deleteRun(id)
             }.await()
+
+        if (remoteResult is Result.Error) {
+            applicationScope.launch{
+                syncRunScheduler.scheduleSync(
+                    type = SyncRunScheduler.SyncType.DeleteRun(
+                        runId = id
+                    )
+                )
+            }.join()
+
+        }
 
     }
 
