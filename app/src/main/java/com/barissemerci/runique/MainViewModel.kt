@@ -15,17 +15,24 @@ class MainViewModel(
         MainState()
     )
         private set
-    init{
+
+    init {
         viewModelScope.launch {
             state = state.copy(
                 isCheckingAuth = true
             )
-            state= state.copy(
+            state = state.copy(
                 isLoggedIn = sessionStorage.get() != null
             )
             state = state.copy(
                 isCheckingAuth = false
             )
         }
+    }
+
+    fun setAnalyticsDialogVisibility(visible: Boolean) {
+        state = state.copy(
+            showAnalyticsInstallDialog = visible
+        )
     }
 }
